@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the DesignHub platform, either a designer or a client.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique identifier for the user." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "displayName": { "type": "string", "description": "User's display name." },
+        "photoURL": { "type": "string", "description": "URL to the user's profile photo." },
+        "role": { "type": "string", "enum": ["designer", "client"], "description": "The user's role in the platform." },
+        "bio": { "type": "string", "description": "A short biography for designers." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user account was created." }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Design": {
+      "title": "Design",
+      "description": "A design uploaded by a designer.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the design." },
+        "designerId": { "type": "string", "description": "UID of the designer who uploaded it." },
+        "designerName": { "type": "string", "description": "Name of the designer." },
+        "title": { "type": "string", "description": "Title of the design." },
+        "description": { "type": "string", "description": "Description of the design." },
+        "mediaUrl": { "type": "string", "description": "URL to the image or video file." },
+        "mediaType": { "type": "string", "enum": ["image", "video"], "description": "Type of media." },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags for categorization." },
+        "price": { "type": "number", "description": "Starting price for custom orders based on this design." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the design was uploaded." }
+      },
+      "required": ["id", "designerId", "title", "mediaUrl", "mediaType"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "An order placed by a client for a design.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the order." },
+        "clientId": { "type": "string", "description": "UID of the client who placed the order." },
+        "designerId": { "type": "string", "description": "UID of the designer." },
+        "designId": { "type": "string", "description": "ID of the design being ordered." },
+        "status": { "type": "string", "enum": ["pending", "accepted", "completed", "cancelled"], "description": "Current status of the order." },
+        "requirements": { "type": "string", "description": "Specific requirements from the client." },
+        "price": { "type": "number", "description": "Agreed price for the order." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the order was placed." }
+      },
+      "required": ["id", "clientId", "designerId", "designId", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles." },
+    "/designs/{designId}": { "schema": "Design", "description": "Uploaded designs." },
+    "/orders/{orderId}": { "schema": "Order", "description": "Design orders." }
+  }
+}

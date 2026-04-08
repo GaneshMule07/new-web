@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['designer', 'client'];
+    }
+
+    function isValidDesign(data) {
+      return data.keys().hasAll(['id', 'designerId', 'title', 'mediaUrl', 'mediaType']) &&
+             data.designerId == request.auth.uid;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['id', 'clientId', 'designerId', 'designId', 'status']) &&
+             data.clientId == request.auth.uid;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isOwner(userId) && isValidUser(request.resource.data);
+    }
+
+    // Designs
+    match /designs/{designId} {
+      allow read: if true; // Publicly viewable
+      allow create: if isAuthenticated() && isValidDesign(request.resource.data);
+      allow update, delete: if isAuthenticated() && resource.data.designerId == request.auth.uid;
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || resource.data.designerId == request.auth.uid);
+      allow create: if isAuthenticated() && isValidOrder(request.resource.data);
+      allow update: if isAuthenticated() && (resource.data.clientId == request.auth.uid || resource.data.designerId == request.auth.uid);
+    }
+  }
+}
