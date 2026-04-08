@@ -19,6 +19,8 @@ const firebaseConfig = {
 // Use localConfig if it's not the placeholder
 const config = localConfig.apiKey !== "TODO_KEYHERE" ? localConfig : firebaseConfig;
 
+export const isFirebaseConfigured = config.apiKey !== "YOUR_API_KEY" && config.apiKey !== "TODO_KEYHERE";
+
 const app = initializeApp(config);
 export const auth = getAuth(app);
 export const db = getFirestore(app);

@@ -17,7 +17,7 @@ import {
   where,
   Timestamp
 } from 'firebase/firestore';
-import { auth, db, googleProvider } from './firebase';
+import { auth, db, googleProvider, isFirebaseConfigured } from './firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Upload, 
@@ -33,7 +33,10 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  MessageSquare
+  MessageSquare,
+  AlertCircle,
+  ExternalLink,
+  Settings
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -163,6 +166,58 @@ export default function App() {
     d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     d.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  if (!isFirebaseConfigured) {
+    return (
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full rounded-3xl border-zinc-200 shadow-xl">
+          <CardHeader className="text-center space-y-4">
+            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto">
+              <AlertCircle className="w-8 h-8 text-amber-600" />
+            </div>
+            <div className="space-y-2">
+              <CardTitle className="text-2xl font-bold tracking-tight">Firebase Setup Required</CardTitle>
+              <CardDescription>
+                To enable the database and authentication, you need to connect your own Firebase project.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <div className="w-6 h-6 bg-zinc-100 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+                <p className="text-sm text-zinc-600">
+                  Create a project at <a href="https://console.firebase.google.com" target="_blank" className="text-zinc-900 font-medium underline inline-flex items-center">Firebase Console <ExternalLink className="w-3 h-3 ml-1" /></a>
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-6 h-6 bg-zinc-100 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+                <p className="text-sm text-zinc-600">Enable <strong>Firestore</strong> and <strong>Google Auth</strong>.</p>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-6 h-6 bg-zinc-100 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+                <p className="text-sm text-zinc-600">Copy your config to <code>src/firebase-applet-config.json</code>.</p>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-zinc-900 rounded-2xl text-zinc-400 font-mono text-[10px] overflow-hidden">
+              <p className="text-zinc-200 mb-2">// Example config structure</p>
+              <pre>{`{
+  "apiKey": "...",
+  "projectId": "...",
+  "appId": "..."
+}`}</pre>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full bg-zinc-900 text-white hover:bg-zinc-800" onClick={() => window.location.reload()}>
+              <Settings className="w-4 h-4 mr-2" /> I've updated the config
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
